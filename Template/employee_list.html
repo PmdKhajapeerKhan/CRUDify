@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Details</title>
+</head>
+<body>
+    <h1>Employee Details</h1>
+
+    <h2>Employee List</h2>
+    <table border="1" id="employee-list">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone Number</th> <!-- Added Phone Number -->
+                <th>Position</th> <!-- Added Position -->
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <h2>Employee Overview</h2>
+    <table border="1" id="employee-overview">
+        <thead>
+            <tr>
+                <th>Salary</th> <!-- Added Salary -->
+                <th>Bank Details</th> <!-- Added Bank Details -->
+                <th>Experience (Years)</th> <!-- Added Experience -->
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        async function fetchEmployees() {
+            const response = await fetch('http://127.0.0.1:8000/api/employees/');
+            const employees = await response.json();
+
+            const listTableBody = document.querySelector('#employee-list tbody');
+            const overviewTableBody = document.querySelector('#employee-overview tbody');
+
+            employees.forEach(async (employee) => {
+                // For the first table
+                const listRow = document.createElement('tr');
+                listRow.innerHTML = `
+                    <td>${employee.first_name}</td>
+                    <td>${employee.last_name}</td>
+                    <td>${employee.email}</td>
+                    <td>${employee.phone_number}</td> <!-- Displaying Phone Number -->
+                    <td>${employee.position}</td> <!-- Displaying Position -->
+                `;
+                listTableBody.appendChild(listRow);
+
+                // For the second table, fetch financial info
+                const financialResponse = await fetch(`http://127.0.0.1:8000/api/employees/${employee.id}/financial_info/`);
+                if (financialResponse.ok) {
+                    const financialInfo = await financialResponse.json();
+                    const overviewRow = document.createElement('tr');
+                    overviewRow.innerHTML = `
+                        <td>${financialInfo.salary}</td> <!-- Displaying Salary -->
+                        <td>${financialInfo.bank_details}</td> <!-- Displaying Bank Details -->
+                        <td>${financialInfo.experience}</td> <!-- Displaying Experience -->
+                    `;
+                    overviewTableBody.appendChild(overviewRow);
+                }
+            });
+        }
+
+        // Fetch employees when the page loads
+        fetchEmployees();
+    </script>
+</body>
+</html>
